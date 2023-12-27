@@ -1,42 +1,16 @@
 package main
 
 import (
-	"errors"
 	"fmt"
-	"os"
-	"strconv"
+
+	"example.com/bank/fileops" //path from go.mod module + path to package
+	"github.com/Pallinder/go-randomdata"
 )
 
 const accountBalanceFile = "balance.txt"
 
-func writeBalanceToFile(balance float64) {
-	balanceText := fmt.Sprint(balance)
-	//[]byte(balanceText) transforms the string into the byte type required by the method below
-	//0644 is a file permission type, permits for owner to read and write and others to only view
-	os.WriteFile(accountBalanceFile, []byte(balanceText), 0644)
-}
-
-func getBalanceFromFile() (float64, error) {
-	// _ means that we know the var exists but we don't want to work with it now
-	data, err := os.ReadFile(accountBalanceFile)
-
-	// nil stands for when we don't have anhy useful value, err will be an error if it equals nil
-	if err != nil {
-		return 1000, errors.New("failed to read balance from file")
-	}
-
-	balanceText := string(data) // from []byte to string
-	balance, err := strconv.ParseFloat(balanceText, 64) // from string to float64
-
-	if err != nil {
-		return 1000, errors.New("failed to parse balance from file")
-	}
-
-	return balance, nil //returning no errors
-}
-
 func main() {
-	var accountBalance, err = getBalanceFromFile()
+	var accountBalance, err = fileops.GetFloatFromFile(accountBalanceFile)
 
 	if err != nil {
 		fmt.Println("ERROR")
@@ -46,14 +20,11 @@ func main() {
 	}
 
 	fmt.Println("Welcome to Go Bank")
+	fmt.Println("Reach us 24/7:", randomdata.PhoneNumber())
 
 	//infinite loop
 	for {
-		fmt.Println("What do you want to do?")
-		fmt.Println("1. Check Balance")
-		fmt.Println("2. Deposit Money")
-		fmt.Println("3. Withdraw Money")
-		fmt.Println("4. Exit")
+		presentOptions()
 
 		var choice int
 		fmt.Print("Your choice: ")
@@ -74,7 +45,7 @@ func main() {
 			}
 			accountBalance += depositAmount
 			fmt.Println("New Balance: ", accountBalance)
-			writeBalanceToFile(accountBalance)
+			fileops.WriteFloatToFile(accountBalance, accountBalanceFile)
 		case 3:
 			fmt.Print("Your withdrawal: ")
 			var withdrawAmount float64
@@ -89,7 +60,7 @@ func main() {
 			}
 			accountBalance -= withdrawAmount
 			fmt.Println("New Balance:", accountBalance)
-			writeBalanceToFile(accountBalance)
+			fileops.WriteFloatToFile(accountBalance, accountBalanceFile)
 		default:
 			fmt.Println("Thank you for choosing our bank")
 			fmt.Println("Go Bank wishes you a happy day!")
