@@ -10,6 +10,11 @@ import (
   "example.com/note/todo"
 )
 
+//defines that a certain method exists, only name, parameters & return value, not defining the function body. Works like a contract for structs.
+type saver interface {
+  Save() error
+}
+
 func main() {
 
 	title, content := getNoteData()
@@ -22,14 +27,11 @@ func main() {
 	}
 
 	userNote.Display()
-	err = userNote.Save()
+  err = saveData(userNote)
 
-	if err != nil {
-		fmt.Println("Saving the note failed")
-		return
-	}
-
-	fmt.Println("Saving the note succeeded")
+  if err != nil {
+    return
+  }
 
   todoText := getUserInput("Todo text: ")
 
@@ -41,14 +43,11 @@ func main() {
   }
 
   todo.Display()
-  err = todo.Save()
+  err = saveData(todo)
 
   if err != nil {
-    fmt.Println("Saving the todo failed")
     return
   }
-
-  fmt.Println("Saving the todo succeeded")
   
 }
 
@@ -56,6 +55,18 @@ func getNoteData() (string, string) {
 	title := getUserInput("Note title: ")
 	content := getUserInput("Note content: ")
 	return title, content
+}
+
+func saveData(data saver) error {
+  err := data.Save()
+
+  if err != nil {
+    fmt.Println("Saving failed")
+    return err
+  }
+
+  fmt.Println("Saving succeeded")
+  return nil
 }
 
 func getUserInput(prompt string) (string) {
